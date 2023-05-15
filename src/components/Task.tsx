@@ -1,4 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
+import {TaskButton} from "./primitives/buttonStyled";
+import {CheckboxInput} from "./primitives/checkboxStyled";
 
 interface ITaskProps {
     task: {
@@ -11,16 +14,32 @@ interface ITaskProps {
     onEdit: (id: number) => void;
 }
 
-const Task: React.FC<ITaskProps> = ({task, onDelete, onToggle, onEdit}) => {
+const TaskContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #1890ff;
+`;
 
+const TaskId = styled.span`
+  margin-right: 5px;
+`;
+
+const TaskTitle = styled.span<{ isComplete: boolean }>`
+  text-decoration: ${(props) => (props.isComplete ? 'line-through' : 'none')};
+  font-size: 18px;
+`;
+
+const Task: React.FC<ITaskProps> = ({task, onDelete, onToggle, onEdit}) => {
     return (
-        <div>
-            <span>{task.id}:</span>
-            <input type="checkbox" checked={task.isComplete} onChange={() => onToggle(task.id)} />
-            <span style={{textDecoration: task.isComplete ? 'line-through' : 'none'}}>{task.title}</span>
-            <button onClick={() => onDelete(task.id)}>Delete</button>
-            <button onClick={() => onEdit(task.id)}>Edit</button>
-        </div>
+        <TaskContainer>
+            <TaskId>{task.id}:</TaskId>
+            <CheckboxInput type="checkbox" checked={task.isComplete} onChange={() => onToggle(task.id)} />
+            <TaskTitle isComplete={task.isComplete}>{task.title}</TaskTitle>
+            <TaskButton onClick={() => onDelete(task.id)}>Delete</TaskButton>
+            <TaskButton onClick={() => onEdit(task.id)}>Edit</TaskButton>
+        </TaskContainer>
     );
 };
 

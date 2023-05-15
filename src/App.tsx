@@ -2,7 +2,16 @@ import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
 import TaskList from "./components/TaskList";
 import FieldEdit from "./components/FieldEdit";
+import {TaskButton} from "./components/primitives/buttonStyled";
+import styled from 'styled-components';
+import {FormContainer, InputField} from "./components/primitives/formStyled";
 
+const AppContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+`;
 
 const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
 
@@ -158,14 +167,13 @@ const App: React.FC = () => {
         });
     };
 
-
     return (
-        <div className="App">
+        <AppContainer className="App">
             <h1>Task List</h1>
-            <form>
-                <input type="text" placeholder="Enter task name" ref={inputRef} />
-                <button onClick={addTask}>Add</button>
-            </form>
+            <FormContainer>
+                <InputField type="text" placeholder="Enter task name" ref={inputRef} />
+                <TaskButton onClick={addTask}>Add</TaskButton>
+            </FormContainer>
 
             <TaskList
                 tasks={tasksState.tasks} onDelete={handleDeleteTask} onToggle={handleToggleTask}
@@ -181,11 +189,11 @@ const App: React.FC = () => {
             )}
             {tasksState.tasks.length !== 0 && (
                 <div>
-                    <button onClick={handleToggleAll}>Toggle All</button>
-                    <button onClick={handleDeleteCompleted}>Delete Completed</button>
+                    <TaskButton onClick={handleToggleAll}>Toggle All</TaskButton>
+                    <TaskButton onClick={handleDeleteCompleted}>Delete Completed</TaskButton>
                 </div>
             )}
-        </div>
+        </AppContainer>
     );
 }
 

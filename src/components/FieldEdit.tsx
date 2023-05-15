@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {TaskButton} from "./primitives/buttonStyled";
 
 interface IFieldEditProps {
     tasks: {
@@ -35,8 +36,8 @@ const FieldEdit: React.FC<IFieldEditProps> = ({tasks, editingTaskId, handleSave,
                 value={inputValue}
                 onChange={handleInputChange}
             />
-            <button onClick={handleCancelEdit}>Cancel</button>
-            <button onClick={handleSaveClick}>Save</button>
+            <TaskButton onClick={handleCancelEdit}>Cancel</TaskButton>
+            <TaskButton onClick={handleSaveClick}>Save</TaskButton>
         </div>
     );
 };
