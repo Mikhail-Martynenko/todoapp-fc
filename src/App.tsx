@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './App.css';
+import TaskList from "./components/TaskList";
 
 
 const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
 
-interface ITasks {
+ interface ITasks {
     tasks: {
         id: number;
         title: string;
@@ -18,6 +19,8 @@ const App: React.FC = () => {
         tasks: []
     })
 
+    const [inputValue, setInputValue] = useState<string>('')
+    const inputRef = useRef<HTMLInputElement>(null);
     useEffect((): void => {
         try {
             (async () => {
@@ -25,9 +28,9 @@ const App: React.FC = () => {
                 if (response.ok) {
                     const tasks = await response.json();
                     console.log('Запрос прошёл успешно!')
-                    setStateTasks(() => ({
-                        tasks: [...tasks.slice(0, 5)]
-                    }));
+                    // setStateTasks(() => ({
+                    //     tasks: [...tasks.slice(0, 5)]
+                    // }));
                 }
             })()
         } catch (error) {
@@ -35,27 +38,29 @@ const App: React.FC = () => {
         }
     }, [])
 
-    const addTaskEnter = (title: string) => {
-        const newTask = {
-            id: tasksState.tasks.length + 1,
-            title,
-            isComplete: false
-        };
-        setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
-    }
+
+    const addTask: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.preventDefault()
+        if (inputRef.current?.value) {
+            const newTask = {
+                id: tasksState.tasks.length + 1,
+                title: inputRef.current.value,
+                isComplete: false
+            };
+            setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
+        }
+    };
+
 
     return (
         <div className="App">
             <h1>Task List</h1>
-            <input type="text" placeholder="Enter task name" onKeyDown={() => addTaskEnter} />
-            <div>{tasksState.tasks.map((task) =>
-                <div key={task.id}>
-                    <input type="checkbox" checked={task.isComplete} />
-                    <span style={{textDecoration: task.isComplete ? 'line-through' : 'none'}}>{task.title}</span>
-                    <button>Delete</button>
-                    <button>Edit</button>
-                </div>
-            )}</div>
+            <form>
+                <input type="text" placeholder="Enter task name" ref={inputRef} />
+                <button onClick={addTask}>Add</button>
+            </form>
+
+            <TaskList tasks={tasksState.tasks} />
         </div>
     );
 }
