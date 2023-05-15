@@ -5,6 +5,8 @@ import FieldEdit from "./components/FieldEdit";
 import {TaskButton} from "./components/primitives/buttonStyled";
 import styled from 'styled-components';
 import {FormContainer, InputField} from "./components/primitives/formStyled";
+import Slider from "./components/Slider/Slider";
+import slides from './components/Slider/slides.json'
 
 const AppContainer = styled.div`
   display: flex;
@@ -193,6 +195,16 @@ const App: React.FC = () => {
                     <TaskButton onClick={handleDeleteCompleted}>Delete Completed</TaskButton>
                 </div>
             )}
+            <Slider
+                slides={slides}
+                loop
+                navs
+                pages
+                auto
+                stopMouseHover
+                delay={3}
+            />
+
         </AppContainer>
     );
 }
