@@ -122,6 +122,43 @@ const App: React.FC = () => {
         }));
     };
 
+    const handleToggleAll = async () => {
+        const allComplete = tasksState.tasks.every(task => task.isComplete);
+
+        setStateTasks((prevState) => ({
+            tasks: prevState.tasks.map(task => ({
+                        ...task,
+                        isComplete: !allComplete
+                    }
+                )
+            )
+        }));
+        try {
+            const response = await fetch(URL_PATH, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    completed: !allComplete,
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            });
+            console.log(response, 'PUT handleToggleAll');
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleDeleteCompleted = () => {
+        setStateTasks(prevState => {
+            const remainingTasks = prevState.tasks.filter(task => !task.isComplete);
+            return {
+                tasks: remainingTasks.map((task, index) => ({...task, id: index + 1})),
+            };
+        });
+    };
+
+
     return (
         <div className="App">
             <h1>Task List</h1>
@@ -142,8 +179,12 @@ const App: React.FC = () => {
                     handleSave={handleSave}
                 />
             )}
-            {/*<button onClick={handleToggleAll}>Toggle All</button>*/}
-            {/*<button onClick={handleDeleteCompleted}>Delete Completed</button>*/}
+            {tasksState.tasks.length !== 0 && (
+                <div>
+                    <button onClick={handleToggleAll}>Toggle All</button>
+                    <button onClick={handleDeleteCompleted}>Delete Completed</button>
+                </div>
+            )}
         </div>
     );
 }
