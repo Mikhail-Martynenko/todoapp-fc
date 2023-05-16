@@ -17,9 +17,9 @@ interface SliderProps {
 }
 
 const SliderContainer = styled.div`
+  position: relative;
   max-width: 600px;
   margin: 0 auto;
-  position: relative;
 `;
 
 const SliderImage = styled.img`
@@ -29,23 +29,30 @@ const SliderImage = styled.img`
 
 const SliderText = styled.div`
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  color: white;
+  bottom: 3em;
+  left: 14em;
   font-size: 18px;
+  color: white;
+\`        ;
 `;
+const NumberImage = styled.div`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 20px;
+  color: white;
+\`       ;
+`;
+
 
 const ArrowButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
-  width: 40px;
-  height: 40px;
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
+  top: 45%;
+  font-size: 40px;
+  color: white;
 `;
 
 const PrevArrow = styled(ArrowButton)`
@@ -64,12 +71,12 @@ const PaginationContainer = styled.div`
 `;
 
 const PaginationDot = styled.button<{ active: boolean }>`
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: none;
   margin: 0 5px;
-  background-color: ${(props) => (props.active ? "red" : "gray")};
+  background-color: ${(props) => (props.active ? "black" : "gray")};
   cursor: pointer;
 `;
 
@@ -80,7 +87,7 @@ const Slider: React.FC<SliderProps> = ({
                                            pages = false,
                                            auto = false,
                                            stopMouseHover = false,
-                                           delay = 5,
+                                           delay = 3,
                                        }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAutoEnabled, setIsAutoEnabled] = useState(auto);
@@ -91,34 +98,17 @@ const Slider: React.FC<SliderProps> = ({
         let interval: NodeJS.Timeout;
 
         if (isAutoEnabled) {
-            interval = setInterval(() => {
-                handleNext();
-            }, delay * 1000);
+            interval = setInterval(() => handleSlideChange(1), delay * 1000);
         }
 
         return () => {
             clearInterval(interval);
         };
-    }, [currentIndex, isAutoEnabled]);
+    }, [currentIndex, isAutoEnabled, delay]);
 
-    const handleNext = () => {
-        const nextIndex = currentIndex + 1;
-
-        if (loop) {
-            setCurrentIndex(nextIndex >= totalSlides ? 0 : nextIndex);
-        } else {
-            setCurrentIndex(nextIndex < totalSlides ? nextIndex : currentIndex);
-        }
-    };
-
-    const handlePrev = () => {
-        const prevIndex = currentIndex - 1;
-
-        if (loop) {
-            setCurrentIndex(prevIndex < 0 ? totalSlides - 1 : prevIndex);
-        } else {
-            setCurrentIndex(prevIndex >= 0 ? prevIndex : currentIndex);
-        }
+    const handleSlideChange = (delta: number) => {
+        const nextIndex = (currentIndex + delta + slides.length) % slides.length;
+        setCurrentIndex(nextIndex);
     };
 
     const handlePagination = (index: number) => {
@@ -132,7 +122,7 @@ const Slider: React.FC<SliderProps> = ({
     };
 
     const handleMouseLeave = () => {
-        if (auto && !stopMouseHover) {
+        if (auto) {
             setIsAutoEnabled(true);
         }
     };
@@ -140,17 +130,8 @@ const Slider: React.FC<SliderProps> = ({
     const renderNavButtons = () => {
         return (
             <>
-                <PrevArrow onClick={handlePrev}>
-                    <img
-                        width="30" height="30" src="https://img.icons8.com/officel/80/less-than.png" alt="Arrow next"
-                    />
-                </PrevArrow>
-                <NextArrow onClick={handleNext}>
-                    <img
-                        width="30" height="30" src="https://img.icons8.com/officel/80/more-than.png"
-                        alt="Arrow previous"
-                    />
-                </NextArrow>
+                <PrevArrow onClick={() => handleSlideChange(-1)}>&#x2190;</PrevArrow>
+                <NextArrow onClick={() => handleSlideChange(1)}>&#x2192;</NextArrow>
             </>
         );
     };
@@ -181,13 +162,9 @@ const Slider: React.FC<SliderProps> = ({
 
             {pages && renderPaginationDots()}
 
-            <div>
+            <NumberImage>
                 {currentIndex + 1}/{slides.length}
-            </div>
-
-            {auto && stopMouseHover && (
-                <p>Hover over the slider to pause auto mode</p>
-            )}
+            </NumberImage>
         </SliderContainer>
     );
 };
