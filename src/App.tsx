@@ -1,12 +1,13 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect} from 'react';
 import './App.css';
 import TaskList from "./components/TaskList";
 import FieldEdit from "./components/FieldEdit";
 import {TaskButton} from "./components/primitives/buttonStyled";
 import styled from 'styled-components';
-import {FormContainer, InputField} from "./components/primitives/formStyled";
-import Slider from "./components/Slider/Slider";
-import slides from './components/Slider/slides.json'
+import {useAppDispatch} from "./redux/hooks";
+import {deleteCompletedTasks, taskSelector, toggleAll} from "./redux/slices/taskSlice";
+import {useSelector} from "react-redux";
+import InputCustom from "./components/InputCustom";
 
 const AppContainer = styled.div`
   display: flex;
@@ -17,23 +18,10 @@ const AppContainer = styled.div`
 
 const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
 
-interface ITasks {
-    tasks: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    }[];
-    editingTaskId?: number | null
-}
-
 const App: React.FC = () => {
+    const dispatch = useAppDispatch()
+    const {tasks, editingTaskId} = useSelector(taskSelector)
 
-    const [tasksState, setStateTasks] = useState<ITasks>({
-        tasks: [],
-        editingTaskId: null
-    })
-
-    const inputRef = useRef<HTMLInputElement>(null);
     useEffect((): void => {
         try {
             (async () => {
@@ -51,20 +39,6 @@ const App: React.FC = () => {
         }
     }, [])
 
-
-    const addTask: React.MouseEventHandler<HTMLButtonElement> = (e) => {
-        e.preventDefault()
-        if (inputRef.current?.value) {
-            const newTask = {
-                id: tasksState.tasks.length + 1,
-                title: inputRef.current.value,
-                isComplete: false
-            };
-            setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
-            inputRef.current.value = '';
-        }
-    };
-
     const handleDeleteTask = async (id: number) => {
         try {
             const response = await fetch(`${URL_PATH}${id}`, {
@@ -74,11 +48,6 @@ const App: React.FC = () => {
         } catch (error) {
             console.log(error)
         }
-
-        setStateTasks(prevState => ({
-            tasks: prevState.tasks.filter(task => task.id !== id).map((task, index) => ({...task, id: index + 1}))
-        }));
-
     };
 
     const handleToggleTask = async (id: number) => {
@@ -99,51 +68,10 @@ const App: React.FC = () => {
         } catch (error) {
             console.log(error)
         }
-        setStateTasks((prevState) => ({
-            tasks: prevState.tasks.map(task => task.id === id ? {...task, isComplete: !task.isComplete} : task)
-        }));
-    };
-
-
-    const handleEditClick = (taskId: number) => {
-        setStateTasks((prevState) => ({
-            ...prevState,
-            editingTaskId: taskId,
-        }));
-    };
-
-    const handleSave = (id: number | null, updatedTask: { title: string; isComplete?: boolean }) => {
-        const updatedTasks = tasksState.tasks.map(task => {
-            if (task.id === id) {
-                return {
-                    ...task,
-                    title: updatedTask.title,
-                    isComplete: updatedTask.isComplete !== undefined ? updatedTask.isComplete : task.isComplete,
-                };
-            }
-            return task;
-        });
-
-        setStateTasks({tasks: updatedTasks});
-    };
-    const handleCancelEdit = () => {
-        setStateTasks((prevState) => ({
-            ...prevState,
-            editingTaskId: null,
-        }));
     };
 
     const handleToggleAll = async () => {
-        const allComplete = tasksState.tasks.every(task => task.isComplete);
-
-        setStateTasks((prevState) => ({
-            tasks: prevState.tasks.map(task => ({
-                        ...task,
-                        isComplete: !allComplete
-                    }
-                )
-            )
-        }));
+        const allComplete = tasks.every(task => task.isComplete);
         try {
             const response = await fetch(URL_PATH, {
                 method: 'PUT',
@@ -158,53 +86,33 @@ const App: React.FC = () => {
         } catch (error) {
             console.log(error);
         }
+        dispatch(toggleAll())
     };
-
     const handleDeleteCompleted = () => {
-        setStateTasks(prevState => {
-            const remainingTasks = prevState.tasks.filter(task => !task.isComplete);
-            return {
-                tasks: remainingTasks.map((task, index) => ({...task, id: index + 1})),
-            };
-        });
+        dispatch(deleteCompletedTasks())
     };
 
     return (
         <AppContainer className="App">
             <h1>Task List</h1>
-            <FormContainer>
-                <InputField type="text" placeholder="Enter task name" ref={inputRef} />
-                <TaskButton onClick={addTask}>Add</TaskButton>
-            </FormContainer>
-
-            <TaskList
-                tasks={tasksState.tasks} onDelete={handleDeleteTask} onToggle={handleToggleTask}
-                onEdit={handleEditClick}
-            />
-            {tasksState.editingTaskId !== null && tasksState.editingTaskId !== undefined && (
-                <FieldEdit
-                    tasks={tasksState.tasks}
-                    editingTaskId={tasksState.editingTaskId}
-                    handleCancelEdit={handleCancelEdit}
-                    handleSave={handleSave}
-                />
-            )}
-            {tasksState.tasks.length !== 0 && (
+            <InputCustom />
+            <TaskList />
+            {editingTaskId !== null && <FieldEdit />}
+            {tasks.length !== 0 && (
                 <div>
                     <TaskButton onClick={handleToggleAll}>Toggle All</TaskButton>
                     <TaskButton onClick={handleDeleteCompleted}>Delete Completed</TaskButton>
                 </div>
             )}
-            <Slider
-                slides={slides}
-                loop
-                navs
-                pages
-                auto
-                stopMouseHover
-                delay={3}
-            />
-
+            {/*<Slider*/}
+            {/*    slides={slides}*/}
+            {/*    loop*/}
+            {/*    navs*/}
+            {/*    pages*/}
+            {/*    auto*/}
+            {/*    stopMouseHover*/}
+            {/*    delay={3}*/}
+            {/*/>*/}
         </AppContainer>
     );
 }

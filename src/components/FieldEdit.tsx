@@ -1,42 +1,30 @@
 import React, {useState} from 'react';
 import {TaskButton} from "./primitives/buttonStyled";
+import {useSelector} from "react-redux";
+import {editTask, taskSelector, updateTask} from "../redux/slices/taskSlice";
+import {useAppDispatch} from "../redux/hooks";
+import {InputField} from "./primitives/formStyled";
 
-interface IFieldEditProps {
-    tasks: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    }[];
-    editingTaskId: number | null;
-    handleCancelEdit: () => void;
-    handleSave: (id: number | null, updatedTask: { title: string; isComplete?: boolean }) => void;
-}
-
-const FieldEdit: React.FC<IFieldEditProps> = ({tasks, editingTaskId, handleSave, handleCancelEdit}) => {
+const FieldEdit: React.FC = () => {
 
     const [inputValue, setInputValue] = useState<string>('')
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
-    };
+    const {editingTaskId} = useSelector(taskSelector)
+    const dispatch = useAppDispatch()
 
     const handleSaveClick = () => {
         const updatedTask = {
-            ...tasks.find(task => task.id === editingTaskId),
             title: inputValue,
+            isComplete: false,
         };
-        handleSave(editingTaskId, updatedTask);
+        dispatch(updateTask({id: editingTaskId, updatedTask}));
+        dispatch(editTask(null));
     };
 
 
     return (
         <div>
-            <input
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-            />
-            <TaskButton onClick={handleCancelEdit}>Cancel</TaskButton>
+            <InputField type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+            <TaskButton onClick={() => dispatch(editTask(null))}>Cancel</TaskButton>
             <TaskButton onClick={handleSaveClick}>Save</TaskButton>
         </div>
     );

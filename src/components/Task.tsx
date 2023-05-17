@@ -2,17 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import {TaskButton} from "./primitives/buttonStyled";
 import {CheckboxInput} from "./primitives/checkboxStyled";
+import {useAppDispatch} from "../redux/hooks";
+import {deleteTask, editTask, toggleTask} from "../redux/slices/taskSlice";
 
-interface ITaskProps {
-    task: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    };
-    onDelete: (id: number) => void;
-    onToggle: (id: number) => void;
-    onEdit: (id: number) => void;
-}
 
 const TaskContainer = styled.div`
   display: flex;
@@ -31,14 +23,23 @@ const TaskTitle = styled.span<{ isComplete: boolean }>`
   font-size: 18px;
 `;
 
-const Task: React.FC<ITaskProps> = ({task, onDelete, onToggle, onEdit}) => {
+interface ITaskProps {
+    task: {
+        id: number;
+        title: string;
+        isComplete: boolean;
+    };
+}
+
+const Task: React.FC<ITaskProps> = ({task}) => {
+    const dispatch = useAppDispatch()
     return (
         <TaskContainer>
             <TaskId>{task.id}:</TaskId>
-            <CheckboxInput type="checkbox" checked={task.isComplete} onChange={() => onToggle(task.id)} />
+            <CheckboxInput type="checkbox" checked={task.isComplete} onChange={() => dispatch(toggleTask(task.id))} />
             <TaskTitle isComplete={task.isComplete}>{task.title}</TaskTitle>
-            <TaskButton onClick={() => onDelete(task.id)}>Delete</TaskButton>
-            <TaskButton onClick={() => onEdit(task.id)}>Edit</TaskButton>
+            <TaskButton onClick={() => dispatch(deleteTask(task.id))}>Delete</TaskButton>
+            <TaskButton onClick={() => dispatch(editTask(task.id))}>Edit</TaskButton>
         </TaskContainer>
     );
 };
