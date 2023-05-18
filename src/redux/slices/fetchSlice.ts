@@ -1,8 +1,17 @@
 import {AnyAction, CaseReducer, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {AppDispatch, RootState} from "../store";
-import {addTask, deleteTask, ITask, ITasksState, setTasksArray, toggleAll, toggleTask, updateTask} from "./taskSlice";
+import {
+    addTask,
+    deleteCompletedTasks,
+    deleteTask,
+    ITask,
+    setTasksArray,
+    toggleAll,
+    toggleTask,
+    updateTask
+} from "./taskSlice";
 
-const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
+const URL_PATH: string = `https://jsonplaceholder.typicode.com/todos/`
 
 interface IFetchTasksExtraThunkArg {
     rejectValue: string;
@@ -49,12 +58,12 @@ export const fetchAddNewTask = createAsyncThunk<ITask, string, IFetchTasksExtraT
         }
         dispatch(addTask(text))
         const data = await response.json();
-        console.log("Задача добавлена", data)
+        console.log("Задача добавлена", response)
         return data;
     }
 );
 
-export const fetchDeleteTask = createAsyncThunk<ITask[], number, { rejectValue: string }>(
+export const fetchDeleteTask = createAsyncThunk<void, number, { rejectValue: string }>(
     'tasks/fetchDeleteTask',
     async (id, {rejectWithValue, dispatch}) => {
         const response = await fetch(`${URL_PATH}${id}`, {
@@ -63,11 +72,30 @@ export const fetchDeleteTask = createAsyncThunk<ITask[], number, { rejectValue: 
         if (!response.ok) {
             return rejectWithValue('Cant delete task. Server error')
         }
-        console.log(response)
         dispatch(deleteTask(id))
-        return [];
+        console.log(response, 'Задача удалена!')
     }
 )
+
+export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, IFetchTasksExtraThunkArg>(
+    'tasks/fetchDeleteCompletedTasks',
+    async (_, {rejectWithValue, dispatch, getState}) => {
+        const {tasks} = getState().taskReducer;
+        const completedTasks = tasks.filter(task => task.isComplete);
+        try {
+            await Promise.all(completedTasks.map(task => {
+                return fetch(`${URL_PATH}${task.id}`, {
+                    method: 'DELETE',
+                });
+            }));
+            console.log('Выполненные задачи удалены!')
+            dispatch(deleteCompletedTasks());
+        } catch (error: any) {
+            return rejectWithValue('Error deleting completed tasks');
+        }
+    }
+);
+
 
 export const fetchToggleTask = createAsyncThunk<ITask, number, IFetchTasksExtraThunkArg>(
     'tasks/fetchToggleTask',
@@ -88,7 +116,7 @@ export const fetchToggleTask = createAsyncThunk<ITask, number, IFetchTasksExtraT
                 return rejectWithValue('Cant delete task. Server error')
             }
             const data = await response.json();
-            console.log('Toggle - success', data)
+            console.log('Toggle - success', response)
             dispatch(toggleTask(id))
             return data as ITask
         }
@@ -143,7 +171,7 @@ export const fetchUpdateTask = createAsyncThunk<ITask[], IUpdateTaskPayload, IFe
         }
         const data = await response.json();
         dispatch(updateTask({id, updatedTask}))
-        console.log("Edit - success", data)
+        console.log("Edit - success", response)
         return data;
     }
 )
@@ -173,15 +201,24 @@ const fetchSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchTasks.pending, pendingReducer)
-            .addCase(fetchTasks.fulfilled, fulfilledReducer)
             .addMatcher(isError, rejectedReducer)
+            .addMatcher(isPending, pendingReducer)
+            .addMatcher(isFulfilled, fulfilledReducer)
     },
 });
 
 function isError(action: AnyAction) {
     return action.type.endsWith('rejected')
 }
+
+function isPending(action: AnyAction) {
+    return action.type.endsWith('pending')
+}
+
+function isFulfilled(action: AnyAction) {
+    return action.type.endsWith('fulfilled')
+}
+
 
 export const fetchSelector = (state: RootState) => state.fetchReducer;
 export default fetchSlice.reducer

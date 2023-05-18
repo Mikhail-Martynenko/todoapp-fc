@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {TaskButton} from "./primitives/buttonStyled";
-import {editTask, taskSelector, updateTask} from "../redux/slices/taskSlice";
+import {editTask, taskSelector} from "../redux/slices/taskSlice";
 import {useAppDispatch, useAppSelector} from "../redux/hooks";
 import {InputField} from "./primitives/formStyled";
 import {fetchUpdateTask} from "../redux/slices/fetchSlice";

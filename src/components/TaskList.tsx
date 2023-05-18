@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import Task from './Task';
-import {useSelector} from "react-redux";
 import {taskSelector} from "../redux/slices/taskSlice";
 import {useAppSelector} from "../redux/hooks";
 

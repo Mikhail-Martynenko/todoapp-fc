@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import {useAppDispatch, useAppSelector} from "./redux/hooks";
 import {deleteCompletedTasks, taskSelector, toggleAll} from "./redux/slices/taskSlice";
 import InputCustom from "./components/InputCustom";
-import {fetchSelector, fetchTasks, fetchToggleAllTask} from "./redux/slices/fetchSlice";
+import {fetchDeleteCompletedTasks, fetchSelector, fetchTasks, fetchToggleAllTask} from "./redux/slices/fetchSlice";
 import Loader from "./components/Loader/Loader";
 
 const AppContainer = styled.div`
@@ -37,7 +37,7 @@ const App: React.FC = () => {
             {tasks.length !== 0 && (
                 <div>
                     <TaskButton onClick={() => dispatch(fetchToggleAllTask())}>Toggle All</TaskButton>
-                    <TaskButton onClick={() => dispatch(deleteCompletedTasks())}>Delete Completed</TaskButton>
+                    <TaskButton onClick={() => dispatch(fetchDeleteCompletedTasks())}>Delete Completed</TaskButton>
                 </div>
             )}
             {/*<Slider*/}
