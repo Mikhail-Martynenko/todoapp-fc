@@ -5,7 +5,7 @@ import FieldEdit from "./components/FieldEdit";
 import {TaskButton} from "./components/primitives/buttonStyled";
 import styled from 'styled-components';
 import {useAppDispatch, useAppSelector} from "./redux/hooks";
-import {deleteCompletedTasks, taskSelector, toggleAll} from "./redux/slices/taskSlice";
+import {taskSelector} from "./redux/slices/taskSlice";
 import InputCustom from "./components/InputCustom";
 import {fetchDeleteCompletedTasks, fetchSelector, fetchTasks, fetchToggleAllTask} from "./redux/slices/fetchSlice";
 import Loader from "./components/Loader/Loader";
@@ -40,15 +40,6 @@ const App: React.FC = () => {
                     <TaskButton onClick={() => dispatch(fetchDeleteCompletedTasks())}>Delete Completed</TaskButton>
                 </div>
             )}
-            {/*<Slider*/}
-            {/*    slides={slides}*/}
-            {/*    loop*/}
-            {/*    navs*/}
-            {/*    pages*/}
-            {/*    auto*/}
-            {/*    stopMouseHover*/}
-            {/*    delay={3}*/}
-            {/*/>*/}
         </AppContainer>
     );
 }
