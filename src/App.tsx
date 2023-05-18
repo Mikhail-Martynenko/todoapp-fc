@@ -8,6 +8,7 @@ import {useAppDispatch} from "./redux/hooks";
 import {deleteCompletedTasks, taskSelector, toggleAll} from "./redux/slices/taskSlice";
 import {useSelector} from "react-redux";
 import InputCustom from "./components/InputCustom";
+import {fetchSelector, fetchTasks} from "./redux/slices/fetchSlice";
 
 const AppContainer = styled.div`
   display: flex;
@@ -21,22 +22,10 @@ const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
 const App: React.FC = () => {
     const dispatch = useAppDispatch()
     const {tasks, editingTaskId} = useSelector(taskSelector)
+    const {statusLoading, error} = useSelector(fetchSelector)
 
     useEffect((): void => {
-        try {
-            (async () => {
-                const response = await fetch(URL_PATH);
-                if (response.ok) {
-                    const tasks = await response.json();
-                    console.log('Запрос прошёл успешно!')
-                    // setStateTasks(() => ({
-                    //     tasks: [...tasks.slice(0, 5)]
-                    // }));
-                }
-            })()
-        } catch (error) {
-            console.log(error)
-        }
+        dispatch(fetchTasks())
     }, [])
 
     const handleDeleteTask = async (id: number) => {
@@ -96,6 +85,8 @@ const App: React.FC = () => {
         <AppContainer className="App">
             <h1>Task List</h1>
             <InputCustom />
+            {statusLoading === "loading" && <h2>Загрузка...</h2>}
+            {error && <h2>{error}</h2>}
             <TaskList />
             {editingTaskId !== null && <FieldEdit />}
             {tasks.length !== 0 && (

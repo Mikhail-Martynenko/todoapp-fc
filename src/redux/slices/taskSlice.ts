@@ -2,6 +2,7 @@ import type {PayloadAction} from '@reduxjs/toolkit'
 import {createSlice} from '@reduxjs/toolkit'
 import {RootState} from "../store";
 
+
 interface ITask {
     id: number;
     title: string;
@@ -10,18 +11,21 @@ interface ITask {
 
 interface ITasksState {
     tasks: ITask[];
-    editingTaskId: number | null
+    editingTaskId: number | null,
 }
 
 const initialState: ITasksState = {
     tasks: [],
-    editingTaskId: null
+    editingTaskId: null,
 };
 
 export const taskSlice = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
+        setTasksArray: (state, action: PayloadAction<ITask[]>) => {
+            state.tasks = action.payload;
+        },
         addTask: (state, action: PayloadAction<string>) => {
             const newTask: ITask = {
                 id: state.tasks.length + 1,
@@ -59,7 +63,10 @@ export const taskSlice = createSlice({
         editTask: (state, action: PayloadAction<number | null>) => {
             state.editingTaskId = action.payload
         },
-        updateTask: (state, action: PayloadAction<{ id: number | null; updatedTask: { title: string, isComplete: boolean } }>) => {
+        updateTask: (state, action: PayloadAction<{
+            id: number | null;
+            updatedTask: { title: string, isComplete: boolean }
+        }>) => {
             const {id, updatedTask} = action.payload;
             state.tasks = state.tasks.map(task => {
                 if (task.id === id) {
@@ -76,6 +83,7 @@ export const taskSlice = createSlice({
 })
 
 export const {
+    setTasksArray,
     addTask,
     deleteTask,
     toggleTask,

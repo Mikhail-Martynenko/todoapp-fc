@@ -1,9 +1,10 @@
 import {configureStore} from '@reduxjs/toolkit'
 import taskReducer from './slices/taskSlice'
-
+import fetchReducer from './slices/fetchSlice'
 export const store = configureStore({
     reducer: {
         taskReducer,
+        fetchReducer
     },
 })
 

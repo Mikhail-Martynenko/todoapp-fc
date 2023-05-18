@@ -33,10 +33,11 @@ interface ITaskProps {
 
 const Task: React.FC<ITaskProps> = ({task}) => {
     const dispatch = useAppDispatch()
+    const isChecked = task.isComplete ?? false; // Установка значения по умолчанию
     return (
         <TaskContainer>
             <TaskId>{task.id}:</TaskId>
-            <CheckboxInput type="checkbox" checked={task.isComplete} onChange={() => dispatch(toggleTask(task.id))} />
+            <CheckboxInput type="checkbox" checked={isChecked} onChange={() => dispatch(toggleTask(task.id))} />
             <TaskTitle isComplete={task.isComplete}>{task.title}</TaskTitle>
             <TaskButton onClick={() => dispatch(deleteTask(task.id))}>Delete</TaskButton>
             <TaskButton onClick={() => dispatch(editTask(task.id))}>Edit</TaskButton>
