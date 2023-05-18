@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import {TaskButton} from "./primitives/buttonStyled";
 import {CheckboxInput} from "./primitives/checkboxStyled";
 import {useAppDispatch} from "../redux/hooks";
-import {deleteTask, editTask, toggleTask} from "../redux/slices/taskSlice";
+import {editTask, toggleTask} from "../redux/slices/taskSlice";
+import {fetchDeleteTask} from "../redux/slices/fetchSlice";
 
 
 const TaskContainer = styled.div`
@@ -33,13 +34,13 @@ interface ITaskProps {
 
 const Task: React.FC<ITaskProps> = ({task}) => {
     const dispatch = useAppDispatch()
-    const isChecked = task.isComplete ?? false; // Установка значения по умолчанию
+    const isChecked = task.isComplete ?? false;
     return (
         <TaskContainer>
             <TaskId>{task.id}:</TaskId>
             <CheckboxInput type="checkbox" checked={isChecked} onChange={() => dispatch(toggleTask(task.id))} />
             <TaskTitle isComplete={task.isComplete}>{task.title}</TaskTitle>
-            <TaskButton onClick={() => dispatch(deleteTask(task.id))}>Delete</TaskButton>
+            <TaskButton onClick={() => dispatch(fetchDeleteTask(task.id))}>Delete</TaskButton>
             <TaskButton onClick={() => dispatch(editTask(task.id))}>Edit</TaskButton>
         </TaskContainer>
     );

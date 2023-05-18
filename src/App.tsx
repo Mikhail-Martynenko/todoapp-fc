@@ -9,6 +9,7 @@ import {deleteCompletedTasks, taskSelector, toggleAll} from "./redux/slices/task
 import {useSelector} from "react-redux";
 import InputCustom from "./components/InputCustom";
 import {fetchSelector, fetchTasks} from "./redux/slices/fetchSlice";
+import Loader from "./components/Loader/Loader";
 
 const AppContainer = styled.div`
   display: flex;
@@ -28,16 +29,6 @@ const App: React.FC = () => {
         dispatch(fetchTasks())
     }, [])
 
-    const handleDeleteTask = async (id: number) => {
-        try {
-            const response = await fetch(`${URL_PATH}${id}`, {
-                method: 'DELETE',
-            });
-            console.log(response, 'DELETE')
-        } catch (error) {
-            console.log(error)
-        }
-    };
 
     const handleToggleTask = async (id: number) => {
         try {
@@ -85,7 +76,7 @@ const App: React.FC = () => {
         <AppContainer className="App">
             <h1>Task List</h1>
             <InputCustom />
-            {statusLoading === "loading" && <h2>Загрузка...</h2>}
+            {statusLoading === "loading" && <Loader />}
             {error && <h2>{error}</h2>}
             <TaskList />
             {editingTaskId !== null && <FieldEdit />}
