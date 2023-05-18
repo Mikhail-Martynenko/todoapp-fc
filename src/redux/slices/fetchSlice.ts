@@ -76,7 +76,6 @@ export const fetchDeleteTask = createAsyncThunk<void, number, { rejectValue: str
         console.log(response, 'Задача удалена!')
     }
 )
-
 export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, IFetchTasksExtraThunkArg>(
     'tasks/fetchDeleteCompletedTasks',
     async (_, {rejectWithValue, dispatch, getState}) => {
@@ -95,7 +94,6 @@ export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, IFetc
         }
     }
 );
-
 
 export const fetchToggleTask = createAsyncThunk<ITask, number, IFetchTasksExtraThunkArg>(
     'tasks/fetchToggleTask',
