@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import {TaskButton} from "./primitives/buttonStyled";
 import {CheckboxInput} from "./primitives/checkboxStyled";
 import {useAppDispatch} from "../redux/hooks";
-import {editTask, toggleTask} from "../redux/slices/taskSlice";
-import {fetchDeleteTask} from "../redux/slices/fetchSlice";
+import {editTask} from "../redux/slices/taskSlice";
+import {fetchDeleteTask, fetchToggleTask} from "../redux/slices/fetchSlice";
 
 
 const TaskContainer = styled.div`
@@ -38,7 +38,7 @@ const Task: React.FC<ITaskProps> = ({task}) => {
     return (
         <TaskContainer>
             <TaskId>{task.id}:</TaskId>
-            <CheckboxInput type="checkbox" checked={isChecked} onChange={() => dispatch(toggleTask(task.id))} />
+            <CheckboxInput type="checkbox" checked={isChecked} onChange={() => dispatch(fetchToggleTask(task.id))} />
             <TaskTitle isComplete={task.isComplete}>{task.title}</TaskTitle>
             <TaskButton onClick={() => dispatch(fetchDeleteTask(task.id))}>Delete</TaskButton>
             <TaskButton onClick={() => dispatch(editTask(task.id))}>Edit</TaskButton>

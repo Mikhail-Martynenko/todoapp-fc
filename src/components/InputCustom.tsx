@@ -1,8 +1,8 @@
 import React, {useRef} from 'react';
 import {FormContainer, InputField} from "./primitives/formStyled";
 import {TaskButton} from "./primitives/buttonStyled";
-import {addTask} from "../redux/slices/taskSlice";
 import {useAppDispatch} from "../redux/hooks";
+import {fetchAddNewTask} from "../redux/slices/fetchSlice";
 
 const InputCustom: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -10,7 +10,7 @@ const InputCustom: React.FC = () => {
     const handleAddTask: React.MouseEventHandler<HTMLButtonElement> = (e) => {
         e.preventDefault()
         if (inputRef.current?.value) {
-            dispatch(addTask(inputRef.current.value))
+            dispatch(fetchAddNewTask(inputRef.current.value))
             inputRef.current.value = '';
         }
     };

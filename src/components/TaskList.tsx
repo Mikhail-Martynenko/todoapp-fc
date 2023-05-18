@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Task from './Task';
 import {useSelector} from "react-redux";
 import {taskSelector} from "../redux/slices/taskSlice";
+import {useAppSelector} from "../redux/hooks";
 
 const TaskListContainer = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ const TaskListContainer = styled.div`
 `;
 
 const TaskList: React.FC = () => {
-    const {tasks} = useSelector(taskSelector)
+    const {tasks} = useAppSelector(taskSelector)
     return (
         <TaskListContainer>
             {tasks.map((task) => <Task key={task.id} task={task} />)}

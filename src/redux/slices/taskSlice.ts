@@ -3,13 +3,13 @@ import {createSlice} from '@reduxjs/toolkit'
 import {RootState} from "../store";
 
 
-interface ITask {
+export interface ITask {
     id: number;
     title: string;
     isComplete: boolean;
 }
 
-interface ITasksState {
+export interface ITasksState {
     tasks: ITask[];
     editingTaskId: number | null,
 }

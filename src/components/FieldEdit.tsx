@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
 import {TaskButton} from "./primitives/buttonStyled";
-import {useSelector} from "react-redux";
 import {editTask, taskSelector, updateTask} from "../redux/slices/taskSlice";
-import {useAppDispatch} from "../redux/hooks";
+import {useAppDispatch, useAppSelector} from "../redux/hooks";
 import {InputField} from "./primitives/formStyled";
+import {fetchUpdateTask} from "../redux/slices/fetchSlice";
 
 const FieldEdit: React.FC = () => {
 
     const [inputValue, setInputValue] = useState<string>('')
-    const {editingTaskId} = useSelector(taskSelector)
+    const {editingTaskId} = useAppSelector(taskSelector)
     const dispatch = useAppDispatch()
 
     const handleSaveClick = () => {
@@ -16,7 +16,7 @@ const FieldEdit: React.FC = () => {
             title: inputValue,
             isComplete: false,
         };
-        dispatch(updateTask({id: editingTaskId, updatedTask}));
+        dispatch(fetchUpdateTask({id: editingTaskId, updatedTask}));
         dispatch(editTask(null));
     };
 
