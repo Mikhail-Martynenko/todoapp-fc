@@ -3,21 +3,15 @@ import './App.css';
 import TaskList from "./components/TaskList";
 import FieldEdit from "./components/FieldEdit";
 import {TaskButton} from "./components/primitives/buttonStyled";
-import styled from 'styled-components';
 import {useAppDispatch, useAppSelector} from "./redux/hooks";
 import {taskSelector} from "./redux/slices/taskSlice";
 import InputCustom from "./components/InputCustom";
 import {fetchDeleteCompletedTasks, fetchSelector, fetchTasks, fetchToggleAllTask} from "./redux/slices/fetchSlice";
 import Loader from "./components/Loader/Loader";
-
-const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-`;
+import {AppContainer} from "./styles";
 
 const App: React.FC = () => {
+
     const dispatch = useAppDispatch()
     const {tasks, editingTaskId} = useAppSelector(taskSelector)
     const {statusLoading, error} = useAppSelector(fetchSelector)

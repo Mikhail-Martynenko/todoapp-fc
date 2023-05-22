@@ -12,10 +12,12 @@ const FieldEdit: React.FC = () => {
     const dispatch = useAppDispatch()
 
     const handleSaveClick = () => {
+
         const updatedTask = {
             title: inputValue,
             isComplete: false,
         };
+
         dispatch(fetchUpdateTask({id: editingTaskId, updatedTask}));
         dispatch(editTask(null));
     };

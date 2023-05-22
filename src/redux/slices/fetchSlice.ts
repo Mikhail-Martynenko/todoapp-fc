@@ -10,10 +10,9 @@ import {
     toggleTask,
     updateTask
 } from "./taskSlice";
+import {URL_PATH} from "../../shared/constants";
 
-const URL_PATH: string = `https://jsonplaceholder.typicode.com/todos/`
-
-interface IFetchTasksExtraThunkArg {
+interface FetchTasksExtraThunkArg {
     rejectValue: string;
     dispatch: AppDispatch;
     state: RootState;
@@ -24,7 +23,15 @@ interface FetchState {
     error: string | null
 }
 
-export const fetchTasks = createAsyncThunk<ITask[], undefined, IFetchTasksExtraThunkArg>(
+interface UpdateTaskPayload {
+    id: number | null;
+    updatedTask: {
+        title: string,
+        isComplete: boolean
+    };
+}
+
+export const fetchTasks = createAsyncThunk<ITask[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchTasks',
     async (_, {rejectWithValue, dispatch}) => {
         const response = await fetch(`${URL_PATH}?_limit=10`);
@@ -38,7 +45,7 @@ export const fetchTasks = createAsyncThunk<ITask[], undefined, IFetchTasksExtraT
     }
 );
 
-export const fetchAddNewTask = createAsyncThunk<ITask, string, IFetchTasksExtraThunkArg>(
+export const fetchAddNewTask = createAsyncThunk<ITask, string, FetchTasksExtraThunkArg>(
     'tasks/fetchAddNewTask',
     async (text, {rejectWithValue, dispatch,}) => {
         const newTask = {
@@ -76,7 +83,7 @@ export const fetchDeleteTask = createAsyncThunk<void, number, { rejectValue: str
         console.log(response, 'Задача удалена!')
     }
 )
-export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, IFetchTasksExtraThunkArg>(
+export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchDeleteCompletedTasks',
     async (_, {rejectWithValue, dispatch, getState}) => {
         const {tasks} = getState().taskReducer;
@@ -95,7 +102,7 @@ export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, IFetc
     }
 );
 
-export const fetchToggleTask = createAsyncThunk<ITask, number, IFetchTasksExtraThunkArg>(
+export const fetchToggleTask = createAsyncThunk<ITask, number, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleTask',
     async (id, {rejectWithValue, dispatch, getState}) => {
 
@@ -122,7 +129,7 @@ export const fetchToggleTask = createAsyncThunk<ITask, number, IFetchTasksExtraT
     }
 )
 
-export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, IFetchTasksExtraThunkArg>(
+export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleAllTask',
     async (_, {rejectWithValue, dispatch, getState}) => {
         const allComplete = getState().taskReducer.tasks.every(task => task.isComplete);
@@ -145,15 +152,8 @@ export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, IFetchTas
     }
 )
 
-interface IUpdateTaskPayload {
-    id: number | null;
-    updatedTask: {
-        title: string,
-        isComplete: boolean
-    };
-}
 
-export const fetchUpdateTask = createAsyncThunk<ITask[], IUpdateTaskPayload, IFetchTasksExtraThunkArg>(
+export const fetchUpdateTask = createAsyncThunk<ITask[], UpdateTaskPayload, FetchTasksExtraThunkArg>(
     'tasks/fetchUpdateTask',
     async ({id, updatedTask}, {rejectWithValue, dispatch, getState}) => {
 
