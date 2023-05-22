@@ -1,26 +1,16 @@
 import React from 'react';
-import styled from 'styled-components';
 import Task from './Task';
+import {Tasks} from "../domain/MyTask";
+import {TaskListContainer} from "../styles";
 
-interface ITaskListProps {
-    tasks: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    }[];
+interface TaskListProps {
+    tasks: Tasks;
     onDelete: (id: number) => void;
     onToggle: (id: number) => void;
     onEdit: (id: number) => void;
 }
 
-const TaskListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-`;
-
-const TaskList: React.FC<ITaskListProps> = ({tasks, onDelete, onToggle, onEdit}) => {
+const TaskList: React.FC<TaskListProps> = ({tasks, onDelete, onToggle, onEdit}) => {
     return (
         <TaskListContainer>
             {tasks.map((task) => (

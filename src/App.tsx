@@ -3,48 +3,36 @@ import './App.css';
 import TaskList from "./components/TaskList";
 import FieldEdit from "./components/FieldEdit";
 import {TaskButton} from "./components/primitives/buttonStyled";
-import styled from 'styled-components';
 import {FormContainer, InputField} from "./components/primitives/formStyled";
-import Slider from "./components/Slider/Slider";
-import slides from './components/Slider/slides.json'
+import {Tasks} from "./domain/MyTask";
+import {URL_PATH} from "./shared/constants";
+import {AppContainer} from "./styles";
 
-const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-`;
-
-const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
-
-interface ITasks {
-    tasks: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    }[];
+interface TasksState {
+    tasks: Tasks,
     editingTaskId?: number | null
 }
 
 const App: React.FC = () => {
 
-    const [tasksState, setStateTasks] = useState<ITasks>({
+    const [tasksState, setStateTasks] = useState<TasksState>({
         tasks: [],
         editingTaskId: null
     })
 
     const inputRef = useRef<HTMLInputElement>(null);
     useEffect((): void => {
+
         try {
             (async () => {
                 const response = await fetch(URL_PATH);
-                if (response.ok) {
-                    const tasks = await response.json();
-                    console.log('Запрос прошёл успешно!')
-                    // setStateTasks(() => ({
-                    //     tasks: [...tasks.slice(0, 5)]
-                    // }));
-                }
+                if (!response.ok) return;
+                const tasks = await response.json();
+                console.log('Запрос прошёл успешно!')
+                // setStateTasks(() => ({
+                //     tasks: [...tasks.slice(0, 5)]
+                // }));
+
             })()
         } catch (error) {
             console.log(error)
@@ -53,19 +41,23 @@ const App: React.FC = () => {
 
 
     const addTask: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+
         e.preventDefault()
-        if (inputRef.current?.value) {
-            const newTask = {
-                id: tasksState.tasks.length + 1,
-                title: inputRef.current.value,
-                isComplete: false
-            };
-            setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
-            inputRef.current.value = '';
-        }
+
+        if (!inputRef.current?.value) return;
+
+        const newTask = {
+            id: tasksState.tasks.length + 1,
+            title: inputRef.current.value,
+            isComplete: false
+        };
+
+        setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
+        inputRef.current.value = '';
     };
 
     const handleDeleteTask = async (id: number) => {
+
         try {
             const response = await fetch(`${URL_PATH}${id}`, {
                 method: 'DELETE',
@@ -82,6 +74,7 @@ const App: React.FC = () => {
     };
 
     const handleToggleTask = async (id: number) => {
+
         try {
             const response = await fetch(`${URL_PATH}${id}`, {
                 method: 'PUT',
@@ -104,8 +97,8 @@ const App: React.FC = () => {
         }));
     };
 
-
     const handleEditClick = (taskId: number) => {
+
         setStateTasks((prevState) => ({
             ...prevState,
             editingTaskId: taskId,
@@ -113,24 +106,27 @@ const App: React.FC = () => {
     };
 
     const handleSave = (id: number | null, updatedTask: { title: string; isComplete?: boolean }) => {
+
         const updatedTasks = tasksState.tasks.map(task => {
-            if (task.id === id) {
-                return {
-                    ...task,
-                    title: updatedTask.title,
-                    isComplete: updatedTask.isComplete !== undefined ? updatedTask.isComplete : task.isComplete,
-                };
-            }
-            return task;
+
+            if (task.id !== id) return task;
+
+            return {
+                ...task,
+                title: updatedTask.title,
+                isComplete: updatedTask.isComplete !== undefined ? updatedTask.isComplete : task.isComplete,
+            };
         });
 
         setStateTasks({tasks: updatedTasks});
     };
     const handleCancelEdit = () => {
+
         setStateTasks((prevState) => ({
             ...prevState,
             editingTaskId: null,
         }));
+
     };
 
     const handleToggleAll = async () => {
@@ -144,6 +140,7 @@ const App: React.FC = () => {
                 )
             )
         }));
+
         try {
             const response = await fetch(URL_PATH, {
                 method: 'PUT',
@@ -161,6 +158,7 @@ const App: React.FC = () => {
     };
 
     const handleDeleteCompleted = () => {
+
         setStateTasks(prevState => {
             const remainingTasks = prevState.tasks.filter(task => !task.isComplete);
             return {
@@ -176,12 +174,11 @@ const App: React.FC = () => {
                 <InputField type="text" placeholder="Enter task name" ref={inputRef} />
                 <TaskButton onClick={addTask}>Add</TaskButton>
             </FormContainer>
-
             <TaskList
                 tasks={tasksState.tasks} onDelete={handleDeleteTask} onToggle={handleToggleTask}
                 onEdit={handleEditClick}
             />
-            {tasksState.editingTaskId !== null && tasksState.editingTaskId !== undefined && (
+            {typeof tasksState.editingTaskId === "number" && (
                 <FieldEdit
                     tasks={tasksState.tasks}
                     editingTaskId={tasksState.editingTaskId}
@@ -195,16 +192,6 @@ const App: React.FC = () => {
                     <TaskButton onClick={handleDeleteCompleted}>Delete Completed</TaskButton>
                 </div>
             )}
-            <Slider
-                slides={slides}
-                loop
-                navs
-                pages
-                auto
-                stopMouseHover
-                delay={3}
-            />
-
         </AppContainer>
     );
 }
