@@ -1,16 +1,16 @@
 import {AnyAction, CaseReducer, createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {AppDispatch, RootState} from "../store";
+import {URL_PATH} from "../../shared/constants";
 import {
     addTask,
     deleteCompletedTasks,
     deleteTask,
-    ITask,
+    MyTask,
     setTasksArray,
     toggleAll,
     toggleTask,
     updateTask
 } from "./taskSlice";
-import {URL_PATH} from "../../shared/constants";
 
 interface FetchTasksExtraThunkArg {
     rejectValue: string;
@@ -31,28 +31,35 @@ interface UpdateTaskPayload {
     };
 }
 
-export const fetchTasks = createAsyncThunk<ITask[], undefined, FetchTasksExtraThunkArg>(
+export const fetchTasks = createAsyncThunk<MyTask[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchTasks',
     async (_, {rejectWithValue, dispatch}) => {
+
         const response = await fetch(`${URL_PATH}?_limit=10`);
-        if (!response.ok) {
-            return rejectWithValue('Server error')
-        }
+
+        if (!response.ok) rejectWithValue('Server error')
+
         const tasks = await response.json();
         dispatch(setTasksArray(tasks))
         console.log(tasks, 'Запрос прошёл успешно!')
-        return tasks as ITask[];
+        return tasks as MyTask[];
     }
 );
 
-export const fetchAddNewTask = createAsyncThunk<ITask, string, FetchTasksExtraThunkArg>(
+export const fetchAddNewTask = createAsyncThunk<MyTask, string, FetchTasksExtraThunkArg>(
     'tasks/fetchAddNewTask',
     async (text, {rejectWithValue, dispatch,}) => {
+
+        const trimmedTitle = text.trim();
+
+        if (trimmedTitle.length === 0) return;
+
         const newTask = {
             userId: 1,
-            title: text,
+            title: trimmedTitle,
             isComplete: false
         };
+
         const response = await fetch(`${URL_PATH}`, {
             method: 'POST',
             headers: {
@@ -60,9 +67,9 @@ export const fetchAddNewTask = createAsyncThunk<ITask, string, FetchTasksExtraTh
             },
             body: JSON.stringify(newTask)
         });
-        if (!response.ok) {
-            return rejectWithValue('Cant add task. Server error')
-        }
+
+        if (!response.ok) rejectWithValue('Cant add task. Server error')
+
         dispatch(addTask(text))
         const data = await response.json();
         console.log("Задача добавлена", response)
@@ -73,12 +80,11 @@ export const fetchAddNewTask = createAsyncThunk<ITask, string, FetchTasksExtraTh
 export const fetchDeleteTask = createAsyncThunk<void, number, { rejectValue: string }>(
     'tasks/fetchDeleteTask',
     async (id, {rejectWithValue, dispatch}) => {
-        const response = await fetch(`${URL_PATH}${id}`, {
-            method: 'DELETE',
-        });
-        if (!response.ok) {
-            return rejectWithValue('Cant delete task. Server error')
-        }
+
+        const response = await fetch(`${URL_PATH}${id}`, {method: 'DELETE'});
+
+        if (!response.ok) rejectWithValue('Cant delete task. Server error')
+
         dispatch(deleteTask(id))
         console.log(response, 'Задача удалена!')
     }
@@ -86,53 +92,58 @@ export const fetchDeleteTask = createAsyncThunk<void, number, { rejectValue: str
 export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchDeleteCompletedTasks',
     async (_, {rejectWithValue, dispatch, getState}) => {
+
         const {tasks} = getState().taskReducer;
         const completedTasks = tasks.filter(task => task.isComplete);
+
         try {
             await Promise.all(completedTasks.map(task => {
-                return fetch(`${URL_PATH}${task.id}`, {
-                    method: 'DELETE',
-                });
+                return fetch(`${URL_PATH}${task.id}`, {method: 'DELETE'});
             }));
+
             console.log('Выполненные задачи удалены!')
             dispatch(deleteCompletedTasks());
+
         } catch (error: any) {
             return rejectWithValue('Error deleting completed tasks');
         }
     }
 );
 
-export const fetchToggleTask = createAsyncThunk<ITask, number, FetchTasksExtraThunkArg>(
+export const fetchToggleTask = createAsyncThunk<MyTask, number, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleTask',
     async (id, {rejectWithValue, dispatch, getState}) => {
 
-        const task: ITask | undefined = getState().taskReducer.tasks.find(task => task.id === id)
-        if (task) {
-            const response = await fetch(`${URL_PATH}${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                },
-                body: JSON.stringify({
-                    completed: !task.isComplete
-                })
-            });
-            if (!response.ok) {
-                return rejectWithValue('Cant delete task. Server error')
-            }
-            const data = await response.json();
-            console.log('Toggle - success', response)
-            dispatch(toggleTask(id))
-            return data as ITask
-        }
-        return rejectWithValue('No such task')
+        const task: MyTask | undefined = getState().taskReducer.tasks.find(task => task.id === id)
+
+        if (!task) return rejectWithValue('No such task');
+
+        const response = await fetch(`${URL_PATH}${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify({
+                completed: !task.isComplete
+            })
+        });
+
+        if (!response.ok) rejectWithValue('Cant delete task. Server error')
+
+        const data = await response.json();
+        console.log('Toggle - success', response)
+        dispatch(toggleTask(id))
+        return data as MyTask
+
     }
 )
 
-export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, FetchTasksExtraThunkArg>(
+export const fetchToggleAllTask = createAsyncThunk<MyTask[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleAllTask',
     async (_, {rejectWithValue, dispatch, getState}) => {
+
         const allComplete = getState().taskReducer.tasks.every(task => task.isComplete);
+
         const response = await fetch(URL_PATH + '/all', {
             method: 'PATCH',
             body: JSON.stringify({
@@ -142,9 +153,8 @@ export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, FetchTask
                 'Content-type': 'application/json; charset=UTF-8',
             },
         });
-        if (!response.ok) {
-            return rejectWithValue('Cant toggle all tasks. Server error')
-        }
+        if (!response.ok) rejectWithValue('Cant toggle all tasks. Server error')
+
         dispatch(toggleAll())
         const data = await response.json();
         console.log(data, "Toggle all -success")
@@ -152,8 +162,7 @@ export const fetchToggleAllTask = createAsyncThunk<ITask[], undefined, FetchTask
     }
 )
 
-
-export const fetchUpdateTask = createAsyncThunk<ITask[], UpdateTaskPayload, FetchTasksExtraThunkArg>(
+export const fetchUpdateTask = createAsyncThunk<MyTask[], UpdateTaskPayload, FetchTasksExtraThunkArg>(
     'tasks/fetchUpdateTask',
     async ({id, updatedTask}, {rejectWithValue, dispatch, getState}) => {
 
@@ -164,16 +173,15 @@ export const fetchUpdateTask = createAsyncThunk<ITask[], UpdateTaskPayload, Fetc
                 'Content-type': 'application/json; charset=UTF-8',
             },
         });
-        if (!response.ok) {
-            return rejectWithValue('Cant edit task. Server error')
-        }
+
+        if (!response.ok) rejectWithValue('Cant edit task. Server error')
+
         const data = await response.json();
         dispatch(updateTask({id, updatedTask}))
         console.log("Edit - success", response)
         return data;
     }
 )
-
 
 const initialState: FetchState = {
     statusLoading: 'idle',
@@ -205,18 +213,10 @@ const fetchSlice = createSlice({
     },
 });
 
-function isError(action: AnyAction) {
-    return action.type.endsWith('rejected')
-}
-
-function isPending(action: AnyAction) {
-    return action.type.endsWith('pending')
-}
-
-function isFulfilled(action: AnyAction) {
-    return action.type.endsWith('fulfilled')
-}
-
+const isError = (action: AnyAction) => action.type.endsWith('rejected')
+const isPending = (action: AnyAction) => action.type.endsWith('pending')
+const isFulfilled = (action: AnyAction) => action.type.endsWith('fulfilled')
 
 export const fetchSelector = (state: RootState) => state.fetchReducer;
+
 export default fetchSlice.reducer

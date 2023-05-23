@@ -27,7 +27,7 @@ const App: React.FC = () => {
             {statusLoading === "loading" && <Loader />}
             {error && <h2>{error}</h2>}
             <TaskList />
-            {editingTaskId !== null && <FieldEdit />}
+            {typeof editingTaskId === 'number' && <FieldEdit />}
             {tasks.length !== 0 && (
                 <div>
                     <TaskButton onClick={() => dispatch(fetchToggleAllTask())}>Toggle All</TaskButton>

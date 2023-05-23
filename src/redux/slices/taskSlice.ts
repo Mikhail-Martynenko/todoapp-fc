@@ -2,19 +2,18 @@ import type {PayloadAction} from '@reduxjs/toolkit'
 import {createSlice} from '@reduxjs/toolkit'
 import {RootState} from "../store";
 
-
-export interface ITask {
+export interface MyTask {
     id: number;
     title: string;
     isComplete: boolean;
 }
 
-export interface ITasksState {
-    tasks: ITask[];
+export interface TasksState {
+    tasks: MyTask[];
     editingTaskId: number | null,
 }
 
-const initialState: ITasksState = {
+const initialState: TasksState = {
     tasks: [],
     editingTaskId: null,
 };
@@ -23,28 +22,36 @@ export const taskSlice = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
-        setTasksArray: (state, action: PayloadAction<ITask[]>) => {
+        setTasksArray: (state, action: PayloadAction<MyTask[]>) => {
             state.tasks = action.payload;
         },
+
         addTask: (state, action: PayloadAction<string>) => {
-            const newTask: ITask = {
+            const trimmedTitle = action.payload.trim();
+
+            if (trimmedTitle.length === 0) return;
+
+            const newTask: MyTask = {
                 id: state.tasks.length + 1,
-                title: action.payload,
+                title: trimmedTitle,
                 isComplete: false
             };
             state.tasks.push(newTask)
         },
+
         deleteTask: (state, action: PayloadAction<number>) => {
             state.tasks = state.tasks
                 .filter(task => task.id !== action.payload)
                 .map((task, index) => ({...task, id: index + 1}))
         },
+
         toggleTask: (state, action: PayloadAction<number>) => {
             state.tasks = state.tasks.map(task => task.id === action.payload ? {
                 ...task,
                 isComplete: !task.isComplete
             } : task)
         },
+
         toggleAll: (state) => {
             const allComplete = state.tasks.every(task => task.isComplete);
             state.tasks = state.tasks.map(task => ({
@@ -54,6 +61,7 @@ export const taskSlice = createSlice({
                 )
             )
         },
+
         deleteCompletedTasks: (state) => {
             state.tasks = state.tasks
                 .filter(task => !task.isComplete)
@@ -63,20 +71,21 @@ export const taskSlice = createSlice({
         editTask: (state, action: PayloadAction<number | null>) => {
             state.editingTaskId = action.payload
         },
+
         updateTask: (state, action: PayloadAction<{
             id: number | null;
             updatedTask: { title: string, isComplete: boolean }
         }>) => {
             const {id, updatedTask} = action.payload;
             state.tasks = state.tasks.map(task => {
-                if (task.id === id) {
-                    return {
-                        ...task,
-                        title: updatedTask.title,
-                        isComplete: updatedTask.isComplete !== undefined ? updatedTask.isComplete : task.isComplete,
-                    };
-                }
-                return task;
+
+                if (task.id !== id) return task;
+
+                return {
+                    ...task,
+                    title: updatedTask.title,
+                    isComplete: updatedTask.isComplete !== undefined ? updatedTask.isComplete : task.isComplete,
+                };
             });
         },
     },
