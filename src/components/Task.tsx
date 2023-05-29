@@ -11,7 +11,6 @@ interface TaskProps {
 }
 
 const Task: React.FC<TaskProps> = ({task}) => {
-
     const dispatch = useAppDispatch()
     const isChecked = task.isComplete ?? false;
 

@@ -5,7 +5,6 @@ import {useAppSelector} from "../redux/hooks";
 import {TaskListContainer} from "../styles";
 
 const TaskList: React.FC = () => {
-
     const {tasks} = useAppSelector(taskSelector)
 
     return (

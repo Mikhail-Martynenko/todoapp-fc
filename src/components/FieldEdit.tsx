@@ -6,13 +6,11 @@ import {InputField} from "./primitives/formStyled";
 import {fetchUpdateTask} from "../redux/slices/fetchSlice";
 
 const FieldEdit: React.FC = () => {
-
     const [inputValue, setInputValue] = useState<string>('')
     const {editingTaskId} = useAppSelector(taskSelector)
     const dispatch = useAppDispatch()
 
     const handleSaveClick = () => {
-
         const updatedTask = {
             title: inputValue,
             isComplete: false,
