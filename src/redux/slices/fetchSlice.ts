@@ -5,7 +5,7 @@ import {
     addTask,
     deleteCompletedTasks,
     deleteTask,
-    MyTask,
+    Task,
     setTasksArray,
     toggleAll,
     toggleTask,
@@ -31,7 +31,7 @@ interface UpdateTaskPayload {
     };
 }
 
-export const fetchTasks = createAsyncThunk<MyTask[], undefined, FetchTasksExtraThunkArg>(
+export const fetchTasks = createAsyncThunk<Task[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchTasks',
     async (_, {rejectWithValue, dispatch}) => {
 
@@ -42,11 +42,11 @@ export const fetchTasks = createAsyncThunk<MyTask[], undefined, FetchTasksExtraT
         const tasks = await response.json();
         dispatch(setTasksArray(tasks))
         console.log(tasks, 'Запрос прошёл успешно!')
-        return tasks as MyTask[];
+        return tasks as Task[];
     }
 );
 
-export const fetchAddNewTask = createAsyncThunk<MyTask, string, FetchTasksExtraThunkArg>(
+export const fetchAddNewTask = createAsyncThunk<Task, string, FetchTasksExtraThunkArg>(
     'tasks/fetchAddNewTask',
     async (text, {rejectWithValue, dispatch,}) => {
 
@@ -110,11 +110,11 @@ export const fetchDeleteCompletedTasks = createAsyncThunk<void, undefined, Fetch
     }
 );
 
-export const fetchToggleTask = createAsyncThunk<MyTask, number, FetchTasksExtraThunkArg>(
+export const fetchToggleTask = createAsyncThunk<Task, number, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleTask',
     async (id, {rejectWithValue, dispatch, getState}) => {
 
-        const task: MyTask | undefined = getState().taskReducer.tasks.find(task => task.id === id)
+        const task: Task | undefined = getState().taskReducer.tasks.find(task => task.id === id)
 
         if (!task) return rejectWithValue('No such task');
 
@@ -133,12 +133,12 @@ export const fetchToggleTask = createAsyncThunk<MyTask, number, FetchTasksExtraT
         const data = await response.json();
         console.log('Toggle - success', response)
         dispatch(toggleTask(id))
-        return data as MyTask
+        return data as Task
 
     }
 )
 
-export const fetchToggleAllTask = createAsyncThunk<MyTask[], undefined, FetchTasksExtraThunkArg>(
+export const fetchToggleAllTask = createAsyncThunk<Task[], undefined, FetchTasksExtraThunkArg>(
     'tasks/fetchToggleAllTask',
     async (_, {rejectWithValue, dispatch, getState}) => {
 
@@ -162,7 +162,7 @@ export const fetchToggleAllTask = createAsyncThunk<MyTask[], undefined, FetchTas
     }
 )
 
-export const fetchUpdateTask = createAsyncThunk<MyTask[], UpdateTaskPayload, FetchTasksExtraThunkArg>(
+export const fetchUpdateTask = createAsyncThunk<Task[], UpdateTaskPayload, FetchTasksExtraThunkArg>(
     'tasks/fetchUpdateTask',
     async ({id, updatedTask}, {rejectWithValue, dispatch, getState}) => {
 

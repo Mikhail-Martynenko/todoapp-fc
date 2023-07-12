@@ -2,14 +2,14 @@ import type {PayloadAction} from '@reduxjs/toolkit'
 import {createSlice} from '@reduxjs/toolkit'
 import {RootState} from "../store";
 
-export interface MyTask {
+export interface Task {
     id: number;
     title: string;
     isComplete: boolean;
 }
 
 export interface TasksState {
-    tasks: MyTask[];
+    tasks: Task[];
     editingTaskId: number | null,
 }
 
@@ -22,7 +22,7 @@ export const taskSlice = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
-        setTasksArray: (state, action: PayloadAction<MyTask[]>) => {
+        setTasksArray: (state, action: PayloadAction<Task[]>) => {
             state.tasks = action.payload;
         },
 
@@ -31,7 +31,7 @@ export const taskSlice = createSlice({
 
             if (trimmedTitle.length === 0) return;
 
-            const newTask: MyTask = {
+            const newTask: Task = {
                 id: state.tasks.length + 1,
                 title: trimmedTitle,
                 isComplete: false

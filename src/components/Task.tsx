@@ -2,15 +2,15 @@ import React from 'react';
 import {TaskButton} from "./primitives/buttonStyled";
 import {CheckboxInput} from "./primitives/checkboxStyled";
 import {useAppDispatch} from "../redux/hooks";
-import {editTask, MyTask} from "../redux/slices/taskSlice";
+import {editTask, Task} from "../redux/slices/taskSlice";
 import {fetchDeleteTask, fetchToggleTask} from "../redux/slices/fetchSlice";
 import {TaskContainer, TaskId, TaskTitle} from "../styles";
 
 interface TaskProps {
-    task: MyTask;
+    task: Task;
 }
 
-const Task: React.FC<TaskProps> = ({task}) => {
+const TaskView: React.FC<TaskProps> = ({task}) => {
     const dispatch = useAppDispatch()
     const isChecked = task.isComplete ?? false;
 
@@ -25,4 +25,4 @@ const Task: React.FC<TaskProps> = ({task}) => {
     );
 };
 
-export default React.memo(Task);
+export default React.memo(TaskView);
