@@ -1,62 +1,40 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import './App.css';
-
-
-const URL_PATH: string = `https://jsonplaceholder.typicode.com/posts/`
-
-interface ITasks {
-    tasks: {
-        id: number;
-        title: string;
-        isComplete: boolean;
-    }[];
-}
+import TaskList from "./components/TaskList";
+import FieldEdit from "./components/FieldEdit";
+import {TaskButton} from "./components/primitives/buttonStyled";
+import {useAppDispatch, useAppSelector} from "./redux/hooks";
+import {taskSelector} from "./redux/slices/taskSlice";
+import InputCustom from "./components/InputCustom";
+import {fetchDeleteCompletedTasks, fetchSelector, fetchTasks, fetchToggleAllTask} from "./redux/slices/fetchSlice";
+import Loader from "./components/Loader/Loader";
+import {AppContainer} from "./styles";
 
 const App: React.FC = () => {
 
-    const [tasksState, setStateTasks] = useState<ITasks>({
-        tasks: []
-    })
+    const dispatch = useAppDispatch()
+    const {tasks, editingTaskId} = useAppSelector(taskSelector)
+    const {statusLoading, error} = useAppSelector(fetchSelector)
 
     useEffect((): void => {
-        try {
-            (async () => {
-                const response = await fetch(URL_PATH);
-                if (response.ok) {
-                    const tasks = await response.json();
-                    console.log('Запрос прошёл успешно!')
-                    setStateTasks(() => ({
-                        tasks: [...tasks.slice(0, 5)]
-                    }));
-                }
-            })()
-        } catch (error) {
-            console.log(error)
-        }
+        dispatch(fetchTasks())
     }, [])
 
-    const addTaskEnter = (title: string) => {
-        const newTask = {
-            id: tasksState.tasks.length + 1,
-            title,
-            isComplete: false
-        };
-        setStateTasks((prevState) => ({tasks: [...prevState.tasks, newTask]}));
-    }
-
     return (
-        <div className="App">
+        <AppContainer className="App">
             <h1>Task List</h1>
-            <input type="text" placeholder="Enter task name" onKeyDown={() => addTaskEnter} />
-            <div>{tasksState.tasks.map((task) =>
-                <div key={task.id}>
-                    <input type="checkbox" checked={task.isComplete} />
-                    <span style={{textDecoration: task.isComplete ? 'line-through' : 'none'}}>{task.title}</span>
-                    <button>Delete</button>
-                    <button>Edit</button>
+            <InputCustom />
+            {statusLoading === "loading" && <Loader />}
+            {error && <h2>{error}</h2>}
+            <TaskList />
+            {typeof editingTaskId === 'number' && <FieldEdit />}
+            {tasks.length !== 0 && (
+                <div>
+                    <TaskButton onClick={() => dispatch(fetchToggleAllTask())}>Toggle All</TaskButton>
+                    <TaskButton onClick={() => dispatch(fetchDeleteCompletedTasks())}>Delete Completed</TaskButton>
                 </div>
-            )}</div>
-        </div>
+            )}
+        </AppContainer>
     );
 }
 
